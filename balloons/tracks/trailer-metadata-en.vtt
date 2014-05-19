@@ -1,0 +1,46 @@
+WEBVTT FILE
+
+Bubble1
+00:00:05.000 --> 00:00:09.000
+{
+"title":"Fingerless Gloves",
+"text":"Madonna made it fashionable to wear fingerless gloves, also called Glovelettes, in the 1980s with the record cover photo for Like a Virgin.",
+"xpos":"450px",
+"ypos":"350px"
+}
+
+Bubble2
+00:00:09.100 --> 00:00:11.500
+{
+"title":"Sintel Open Movie",
+"text":"A short computer animated film by the Blender Institute, part of the Blender Foundation.",
+"xpos":"500px",
+"ypos":"100px"
+}
+
+Bubble3
+00:00:15.100 --> 00:00:18.600
+{
+"title":"Bubble3",
+"text":"Bubble3",
+"xpos":"250px",
+"ypos":"250px"
+}
+
+Bubble4
+00:00:20.100 --> 00:00:23.600
+{
+"title":"Bubble4",
+"text":"Bubble4",
+"xpos":"0px",
+"ypos":"0px"
+}
+
+Bubble5
+00:00:27.100 --> 00:00:35.600
+{
+"title":"Bubble5",
+"text":"Bubble5",
+"xpos":"500px",
+"ypos":"300px"
+}

@@ -1,0 +1,107 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Changing Subtitle Tracks Showing</title>
+    <!-- 
+    	Charles Hudson - chuckahudson+smw at gmail dot com
+    	Streaming Media West talk - November, 20, 2013
+        C202 Making the HTML5 Video Element Interactive
+        Creative Commons - May be used for any purpose.
+        -->
+    <script>
+	
+		function init() {
+			
+			// Set the subtitles available.
+			setSubtitlesAvailable();
+			
+			// Set the listener for changing subtitle tracks.
+			var selectLang = document.getElementById('selectLang');
+			selectLang.addEventListener('change',changeTrack);
+		}
+		
+		// Get the subtitle text tracks available.
+		function setSubtitlesAvailable() {
+			
+			// Get the array of text tracks on the video element.
+			var allTracks = document.getElementById("sampleVideo").textTracks;   
+			
+			var selectLang = document.getElementById('selectLang');
+			var currentSelection = 0;
+			  
+			// Loop through all text tracks.
+			for (var i = 0; i < allTracks.length; i++) {
+				
+				// We are only interested in subtitle tracks.
+				if (allTracks[i].kind == "subtitles") {
+					
+					// Debug show the track properties and events in console.
+					for (var prop in allTracks[i]) {
+						if(allTracks[i].hasOwnProperty(prop)){
+							console.log(prop + " = " + allTracks[i][prop]);
+						}
+					}
+					
+					// Add the lanugage option to the subtitle select.
+					var opt = document.createElement('option');
+					opt.value = allTracks[i].language;
+					opt.innerHTML = allTracks[i].label;
+					selectLang.appendChild(opt);
+					
+					// Set the currently selected language for subtitles in the select.
+					if (allTracks[i].mode == 'showing') {
+						currentSelection = i;
+					}
+				}
+			}
+			
+			// Initialize the currently showing text track.
+			selectLang.selectedIndex = currentSelection;
+		}
+	
+		// Function to change the subtitle track used.
+		function changeTrack() {
+			
+			// Get the user selected subtitle language.
+			var selectLang = document.getElementById('selectLang');
+			var srcLang = selectLang.options[selectLang.selectedIndex].value;
+			
+			// Grab the array of video text tracks.
+			var allTracks = document.getElementById("sampleVideo").textTracks;
+			
+			// Set mode for each track (disabled 0, hidden 1, showing 2).
+			for (var i = 0; i < allTracks.length; i++) {
+				
+				// Make sure that the track is a subtitle track.
+				if (allTracks[i].kind == 'subtitles') {
+					
+					// Check if the language selected matches the tracks srclang.
+					// Note that the srclang attribute is referenced with "language".
+					// Note if you set all tracks to showing, all will be shown on the video.
+					if (allTracks[i].language == srcLang) {
+						// Turn on track.
+						allTracks[i].mode = 'showing';
+					} else {
+						// Turn off rest of tracks.
+						allTracks[i].mode = 'hidden'; // hidden or disabled would work.
+					}
+				}
+			}
+		}
+		
+		window.addEventListener('load',init);
+		
+    </script>
+</head>
+<body>
+    <video id="sampleVideo" controls>
+        <!-- We will keep the sources simple -->
+        <source id='mp4' src="/video/trailer.mp4" type='video/mp4'>
+        <!-- Add the subtitle tracks for English and Italian, English is default -->
+        <track kind="subtitles" label="English" src="tracks/subtitles_en.vtt" srclang="en" default>
+        <track kind="subtitles" label="Italiano" src="tracks/subtitles_it.vtt" srclang="it">
+        This browser does not support HTML5 video.
+    </video>
+	<div>Subtitle Language: <select id="selectLang"></select></div>
+</body>
+</html>

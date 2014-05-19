@@ -1,0 +1,186 @@
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>DVD Sample Menu Navigation</title>
+  <!-- 
+    	Charles Hudson - chuckahudson+smw at gmail dot com
+    	Streaming Media West talk - November, 20, 2013
+        C202 Making the HTML5 Video Element Interactive
+        Creative Commons - May be used for any purpose.
+        -->
+<style>
+#video_box{float:left;}
+#video_overlays {display: none;position:absolute;float:left;background: rgba(0, 0, 0, 0.5);z-index:300000;text-align:center;}
+#video_menu {display:block;position:absolute;float:left;background: rgba(255, 255, 255, 0);z-index:300000;}
+#divBtnMenu {left:820px;top:445px;position:absolute;float:left;z-index:300000;}
+#divChapterTitle {display:none;left:0px;top:0px;position:absolute;float:left;margin:20px 0 0 20px;z-index:300000;font-size:24px;min-width:200px;}
+.btnChapter {min-height:100px;min-width:300px;position:relative;border:2px solid;border-radius:25px;background:rgba(255,255,255,0.5);cursor:pointer;margin: 0 auto;font-size:18px;}
+.btnChapter:hover {border:4px solid;background:rgba(255,255,255,0.9);}
+.btnChapter:focus {outline:0;}
+.btnDivContainer {margin-top:30px;}
+.btnMenu {border:0px;background:rgba(0,0,0,0);cursor:pointer;}
+.btnMenu:focus {outline:0;}
+</style>
+<script src="/js/jquery-1.10.2.min.js"></script>
+<script>
+ 
+	var menu_shown = false;
+	
+	var video;
+	var cues;
+	
+	// Set the dvd style chapter menu display times.
+	var menuStart = 3;
+	var menuPause =10;
+	var menuStop = 12;
+	
+	function init() {
+		
+		video = document.getElementById('myVideo');
+		var overlay= document.getElementById('video_overlays');
+		
+		// Create timeline update handler for showing menu.
+		video.addEventListener('timeupdate', function() {
+			
+			// Grab the currentTime to prevent it moving out from under us.
+			vidTimeStamp = video.currentTime;
+			
+			// Show or hide the video controls.
+			if (vidTimeStamp<menuStop) {
+				video.controls = false;
+			} else {
+				video.controls = true;
+			}
+			
+			// Check if need to show the menu based on timing.
+			if (vidTimeStamp>=menuStart && vidTimeStamp<menuStop) {
+				if(vidTimeStamp>menuPause) {
+					// Pause the video for user chapter selection.
+					video.pause();
+				}
+				if (!menu_shown) {
+					// Fade in the menu.
+					menu_shown = true;
+					$('#video_overlays').fadeIn((menuPause-menuStart)*1000);
+				}
+			} else {
+				if (menu_shown) {
+					// Hide menu overlay.
+					menu_shown = false;
+					$('#video_overlays').hide();
+				}
+			}
+					
+		}, false);
+		
+		// Set up the chapter buttons off of a metadata track set of cues.
+		video.addEventListener('loadedmetadata', function () {
+			
+			var width = this.videoWidth;
+			var height = this.videoHeight;
+			
+			// Cover the entire video with our overlay.
+			overlay.style.width = width;
+			overlay.style.height = height;
+			
+			// Get our metadata text track and the track object.
+			var trackElement = document.getElementById('metaChapters');
+			var textTrack = trackElement.track;
+			
+			if (textTrack.kind == 'metadata') {
+				
+				// Get the array of cues.
+				cues = textTrack.cues;
+				
+				// Loop through each cue to create and show button.
+				for (var j = 0; j < cues.length; ++j) {
+					
+					var cue = cues[j];
+				
+					// Get the text property of the cue and parse the json.
+					var cueObj = JSON.parse(cue.text);
+					var btnTitle = cueObj.title;
+					
+					// Create the rest of the button dom.
+					var btnDiv = document.createElement("div");
+					btnDiv.className = "btnDivContainer";
+					
+					var btnChapter = document.createElement("button");
+					btnChapter.id = "btnChapter"+j;
+					btnChapter.className = "btnChapter";
+					btnChapter.value = btnTitle;
+					
+					var btnText = document.createTextNode(btnTitle);
+					btnChapter.appendChild(btnText);
+					
+					btnDiv.appendChild(btnChapter);
+					
+					// Connect the button in the page dom.
+					document.getElementById('video_overlays').appendChild(btnDiv);
+					
+					// Set the button listener.
+					setBtnListener(j);
+					
+				}
+			}
+			
+			// Auto play the video showing the menu.
+			video.play();
+		}, false );
+		
+		// Handle chapter menu button click and send user back to main.
+		var btnMenu = document.getElementById('btnMenu');
+		btnMenu.addEventListener('click',function() {
+			
+			// Move video playback to the menu start.
+			video.currentTime = menuStart;
+			video.play();
+			
+		}, false);
+
+	}
+	
+	// create btn chapters dynamically - get around anonymous function.
+	function setBtnListener(j) {
+		
+		document.getElementById('btnChapter'+j).addEventListener('click',function() {
+			
+			// Get the chapter title from the cue text containing JSON.
+			var acueObj = JSON.parse(cues[j].text);
+			var divChapterTitle = document.getElementById('divChapterTitle');
+			divChapterTitle.innerHTML = acueObj.title;
+			
+			// Get the cue start time and set the video currentTime pointer.
+			var achapterStart = cues[j].startTime;
+			video.currentTime = achapterStart;
+			video.play();
+			
+			// Use JQuery to show and fade out the chapter title.
+			$('#divChapterTitle').show();
+			$('#divChapterTitle').fadeOut(3000);
+					
+		},false);
+	}
+	
+	window.addEventListener('load',init);
+	
+</script>
+</head>
+<body>
+    <div id="video_box">
+        <div id="video_overlays"></div>
+        <div id="video_menu">
+        	<div id="divChapterTitle">Chapter Menu</div>
+        	<div id="divBtnMenu"><button id="btnMenu" class="btnMenu"><img src="list.png" style="width:20px;height:20px;"/></button></div>
+        </div>
+        <div>
+        	<video id='myVideo' controls>
+                <source src="/video/big_buck_bunny_480p_surround.avi" type='video/mp4'>
+                <source src="/video/big_buck_bunny_480p_stereo.ogg" type='video/ogg'>
+                <track id="metaChapters" label="Chapters" kind="metadata" srclang="en" src="tracks/dvd-metadata-en.vtt" default />
+                <p>HTML5 Video is not supported by this browser.</p>
+            </video>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Sample Basic Subtitles</title>
+  <!-- 
+    	Charles Hudson - chuckahudson+smw at gmail dot com
+    	Streaming Media West talk - November, 20, 2013
+        C202 Making the HTML5 Video Element Interactive
+        Creative Commons - May be used for any purpose.
+        -->
+</head>
+<body>
+  <video controls>
+  	<!-- We will keep the sources simple. -->
+    <source id='mp4' src="/video/trailer.mp4" type='video/mp4'>
+    <!-- Add the subtitle tracks for English and Italian, English is default. -->
+    <track kind="subtitles" label="English" src="tracks/subtitles_en.vtt" srclang="en" default>
+    <track kind="subtitles" label="Italiano" src="tracks/subtitles_it.vtt" srclang="it">
+    This browser does not support HTML5 video.
+  </video>
+</body>
+</html>

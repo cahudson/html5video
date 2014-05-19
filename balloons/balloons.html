@@ -1,0 +1,137 @@
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Bubbles</title>
+    <!-- 
+    	Charles Hudson - chuckahudson+smw at gmail dot com
+    	Streaming Media West talk - November, 20, 2013
+        C202 Making the HTML5 Video Element Interactive
+        Creative Commons - May be used for any purpose.
+        -->
+  <style>
+	#video_box {position:relative;}
+	#overlay {position: absolute;z-index: 300000;}
+	#video_container {position:absolute;top: 0px;left: 0px;}
+  </style>
+<link rel="stylesheet" type="text/css" href="/js/jquery.qtip.min.css"> 
+<script src="/js/jquery-1.10.2.min.js"></script>
+<script src="/js/jquery-ui-1.10.3/ui/jquery-ui.js"></script>
+<script src="/js/jquery.qtip.min.js"></script>
+<script>	
+
+var cueIdxOn = -1;
+
+function init() {
+	
+  var overlay= document.getElementById('overlay');
+  var video= document.getElementById('sampleVideo');
+	
+	video.addEventListener('timeupdate', function() {
+		
+		vidTimeStamp = video.currentTime;
+		var textTrack = document.getElementById('bubbles').track;
+		
+		// for each cue
+		if (cueIdxOn>-1) {
+			// there is a cue presently on
+			// check if need to turn off cue
+			if (textTrack.cues[cueIdxOn].endTime<vidTimeStamp) {
+				// turn off
+				hideBubble();
+				console.log("turn off cue:"+cueIdxOn);
+				cueIdxOn = -1;
+			}
+		}
+		
+		if (cueIdxOn==-1) {
+		
+			for (var cueIdx = 0; cueIdx < textTrack.cues.length; cueIdx++) {
+				
+				if (vidTimeStamp>=textTrack.cues[cueIdx].startTime && vidTimeStamp<textTrack.cues[cueIdx].endTime) {
+					console.log("show cue:"+cueIdx);
+					// turn on
+					showBubble(cueIdx);
+					cueIdxOn = cueIdx;
+				}
+			}
+		}
+		
+		
+	}, false);
+		
+	video.addEventListener('loadedmetadata', function () {
+			console.log("loadedmetadata");
+	});
+	
+}
+
+function showBubble(cueIdx) {
+	
+	var iCue = document.getElementById('bubbles').track.cues[cueIdx];
+	
+	// Debug show the track properties and events.
+	/*for (var prop in iCue) {
+		if(iCue.hasOwnProperty(prop)){
+			console.log(prop + " = " + iCue[prop]);
+		}
+	}*/
+					
+	var objBubble = JSON.parse(iCue.text);
+	console.log(objBubble.title);
+	
+	// Create qtip JQuery bubble.
+	$('#overlay').qtip({
+		overwrite: "true",
+		content: {
+			title: objBubble.title,
+			text: objBubble.text,
+			button: 'Close'
+		},
+		style: {
+			tip: {
+				corner: 'bottom left'
+			}
+		},
+        show: {
+            effect: function() {
+                $(this).show('slide', 500);
+            }
+        },
+        hide: {
+            effect: function() {
+                $(this).hide('puff', 500);
+            }
+        }
+	 });
+	 
+	// Position the bubble div.
+	var divBubble = document.getElementById('overlay');
+	divBubble.style.left = objBubble.xpos;
+	divBubble.style.top = objBubble.ypos;
+	 
+	// Show the qtip bubble.
+	$('#overlay').qtip().show();
+}
+
+// Hide the qtip bubble.
+function hideBubble() {
+	console.log("onexit fired");
+	$('#overlay').qtip().hide();
+}
+
+window.addEventListener("load",init);
+
+</script>
+</head>
+<body>
+    <div id="video_box">
+      <div id="overlay"></div>
+      <div id="video_container">
+          <video id="sampleVideo" controls>
+            <source id='mp4' src="/video/trailer.mp4" type='video/mp4'>
+            <track id="bubbles" label="Metadata" kind="metadata" srclang="en" src="tracks/trailer-metadata-en.vtt" default />
+            <p>HTML5 Video is not supported by this browser.</p>
+          </video>
+      </div>
+  </div>
+</body>

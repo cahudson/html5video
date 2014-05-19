@@ -1,0 +1,95 @@
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Bookmark Video - Create Chapters</title>
+  <!-- 
+    Charles Hudson - chuckahudson+smw at gmail dot com
+    Streaming Media West talk - November, 20, 2013
+    C202 Making the HTML5 Video Element Interactive
+    Creative Commons - May be used for any purpose.
+    -->
+<style>
+.right {float:left;}
+.left {float:left;overflow:hidden;}
+</style>
+<script>
+
+	var myVideo;
+	var newTextTrack;
+	
+	function init() {
+		
+		// Add a new text track to our video of type chapters.
+		myVideo = document.getElementById('myVideo');
+		newTextTrack = myVideo.addTextTrack('chapters','bookmarks');
+		newTextTrack.default = true;
+		
+		// Set the bookmark button click handlers.
+		var btnBookmark = document.getElementById('btnBookmark');
+		btnBookmark.addEventListener('click',createCue);
+		var btnListCues = document.getElementById('btnListCues');
+		btnListCues.addEventListener('click',listCues);
+	}
+	
+	// Create a new chapter cue.
+	function createCue() {
+	
+		console.log("Creating cue: " + myVideo.currentTime + " | " + newTextTrack.cues.length);
+	
+		// Create the new cue with the current vide time.
+		var newCue = new TextTrackCue(myVideo.currentTime, myVideo.currentTime, 'test');
+		newCue.id = 'bookmark'+newTextTrack.cues.length;
+		newCue.pauseOnExit = false;
+		
+		// Add the cue to the text track.
+		newTextTrack.addCue(newCue);
+		
+		// Display the new cue / bookmark in the list and create actionable button.
+		var divBookmarks = document.getElementById('divBookmarks');
+		divBookmarks.innerHTML = divBookmarks.innerHTML + '<br/><button id="'+newCue.id+'" onclick="goToCue('+newCue.startTime+')">' + newCue.startTime +'</button>';
+		
+	}
+	
+	// List out the present cues to the console.
+	function listCues() {
+		
+		console.log("Number of cues: " + newTextTrack.cues.length);
+		
+		var activeCue;
+		
+		// Loop through the active cues and display in console.
+		for (var i=0; i<newTextTrack.cues.length; i++) {
+			activeCue = newTextTrack.cues[i];
+			console.log(activeCue.id);
+			console.log(activeCue.startTime);
+			console.log(activeCue.endTime);
+			console.log(activeCue.text);
+			console.log(" ");
+		}
+	}
+	
+	// Move video to time for a specific bookmark / cue.
+	function goToCue(startTime) {
+		
+		// Move video.
+		myVideo.currentTime = startTime;
+	}
+	
+	window.addEventListener("load",init);
+
+</script>
+</head>
+<body>
+    <div class='left'>
+        <video id='myVideo' controls>
+            <source id='mp4' src="/video/trailer.mp4" type='video/mp4'>
+            <p>HTML5 Video is not supported by this browser.</p>
+        </video>
+    </div>
+    <div class='right'>
+        <button type="button" id="btnBookmark">Add Bookmark</button>
+        <button type="button" id="btnListCues">List Cues</button>
+        <div id='divBookmarks'></div>
+    </div>
+</body>
+</html>

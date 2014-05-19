@@ -1,0 +1,19 @@
+WEBVTT FILE
+
+chapter1
+00:01:38.000 --> 00:01:38.100
+{
+"title": "Chapter 1"
+}
+
+chapter2
+00:02:35.000 --> 00:02:35.100
+{
+"title": "Chapter 2"
+}
+
+chapter3
+00:04:00.000 --> 00:04:00.100
+{
+"title": "Chapter 3"
+}
